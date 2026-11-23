@@ -72,6 +72,14 @@ describe('POST /auth/signup (integration)', () => {
     expect(await bcrypt.compare('Secret123!', hash)).toBe(true);
   });
 
+  it('stores a new user with role user', async () => {
+    const email = uniqueEmail();
+    await signup(validSignup(email));
+
+    const [{ role }] = await db.query('SELECT role FROM users WHERE email = $1', [email]);
+    expect(role).toBe('user');
+  });
+
   it('rejects mismatched passwords', async () => {
     const email = uniqueEmail();
     const res = await signup({ ...validSignup(email), confirmPassword: 'Different123!' });
@@ -86,6 +94,8 @@ describe('POST /auth/signup (integration)', () => {
     ['missing last name', { lastName: undefined }],
     ['invalid email', { email: 'not-an-email' }],
     ['short password', { password: 'Short1!', confirmPassword: 'Short1!' }],
+    // 37 × "ø" = 37 characters but 74 bytes, over bcrypt's 72-byte limit
+    ['password over 72 bytes', { password: 'ø'.repeat(37), confirmPassword: 'ø'.repeat(37) }],
   ])('rejects invalid input: %s', async (_case, override) => {
     const email = uniqueEmail();
     const res = await signup({ ...validSignup(email), ...override });
