@@ -14,7 +14,7 @@ The whole group uses the same Claude Code setup. It is committed to the repo, so
 | `.claude/skills/pr/` | `/pr`: opens a PR with the team template |
 | `.claude/agents/reviewer.md` | Read-only reviewer for security and missing tests |
 | `.mcp.json` | MCP servers shared by the group (Playwright) |
-| `db/init/01-claude-readonly.sql` | Dev-only read-only DB role for the Postgres MCP server |
+| `db/init/02-claude-readonly.sql` | Dev-only read-only DB role for the Postgres MCP server |
 
 ## Detailed notes
 - [.claude/README.md](../.claude/README.md): settings.json and the reviewer agent explained
@@ -31,7 +31,7 @@ The whole group uses the same Claude Code setup. It is committed to the repo, so
 
 ## Adding the Postgres MCP server (once the database runs)
 The original reference Postgres MCP server is no longer maintained. Pick an actively maintained one and connect it with the `claude_ro` role, dev database only:
-`claude mcp add --scope project postgres -- <server command> postgresql://claude_ro:dev_only_change_me@localhost:5432/<dev_db>`
+`claude mcp add --scope project postgres -- <server command> postgresql://claude_ro:dev_only_change_me@localhost:5433/chatapp`
 Never point it at production.
 
 ## Daily use

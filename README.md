@@ -2,10 +2,43 @@
 
 Shared codebase for Development Environments, Databases 2 and Fullstack. Each course is examined separately.
 
-Scenario: TBD.
+Scenario: own project. A chat app with users, 1:1 and group conversations, and messages.
 
 ## Getting started
-To be filled in when the app exists (Docker Compose, env setup, seed).
+Requirements: Docker Desktop, Node.js 22, jq (`brew install jq`).
+
+```bash
+cp .env.example .env              # then set your own passwords in .env
+docker compose up --build         # Postgres, migrations and API
+```
+- API: http://localhost:3000/health returns `{"status":"ok"}`
+- Postgres: `localhost:5433`, database `chatapp`
+
+Seed test data (20 users, 20 conversations, 45 messages). All test users have the password `password123`:
+```bash
+cd api
+npm install
+npm run seed
+```
+
+Run the API on your own computer instead of in Docker:
+```bash
+docker compose up -d db migrate   # only the database and migrations
+cd api && npm run dev
+```
+
+## How it fits together
+| Part | What | Why |
+| --- | --- | --- |
+| `db` | Postgres 17. `db/init/` creates roles on first start | Admin and app accounts with least privilege (DB2) |
+| `migrate` | One-off container: TypeORM migrations as `chat_admin`, then exits | Schema is versioned in Git. Only this container has the admin password |
+| `api` | NestJS API as `chat_app`, non-root container | The app can change data but never the schema |
+
+## Checks on every pull request
+`.github/workflows/ci.yml` runs three jobs. All must pass before merge.
+1. **API:** lint, typecheck, unit and integration tests, build.
+2. **Database:** creates the roles, runs migrations, seeds, checks for drift between entities and migrations, checks that `chat_app` cannot drop tables, and reverts and re-runs the migrations.
+3. **Docker:** builds the image and checks it runs as non-root.
 
 ## AI setup
 The group uses a shared Claude Code setup. Start with [docs/ai-setup.md](docs/ai-setup.md).
@@ -17,4 +50,4 @@ The group uses a shared Claude Code setup. Start with [docs/ai-setup.md](docs/ai
 | `.claude/hooks/` | See [.claude/hooks/README.md](.claude/hooks/README.md) |
 | `.claude/skills/` | See [.claude/skills/README.md](.claude/skills/README.md) |
 | `.mcp.json` | Shared MCP servers. See [docs/ai-setup.md](docs/ai-setup.md) |
-| `db/init/` | Dev-only DB init scripts. See [db/init/README.md](db/init/README.md) |
+| `db/init/` | Database roles. See [db/init/README.md](db/init/README.md) |

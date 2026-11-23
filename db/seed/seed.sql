@@ -1,5 +1,5 @@
--- Seed data for the chat feature (PostgreSQL)
--- Run AFTER schema.sql. All test users have the password: password123
+-- Seed data for the chat app (PostgreSQL)
+-- Run with `npm run seed` (in api/) AFTER `npm run migration:run`. All test users have the password: password123
 
 BEGIN;
 

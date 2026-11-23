@@ -1,0 +1,105 @@
+# CI: runs on every pull request to main and on every push to main.
+# Three jobs run in parallel. All must pass before a PR is merged.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  # 1. Code quality: lint, type check, unit tests, build
+  api:
+    name: API lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  # 2. Database: roles, migrations, seed and least privilege, against a real Postgres
+  database:
+    name: Database roles, migrations and seed
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: chatapp
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d chatapp"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      # Throwaway passwords for this CI database only. Not real secrets.
+      PGHOST: localhost
+      PGPORT: 5432
+      PGPASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: chatapp
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: chatapp
+      DB_ADMIN_PASSWORD: ci_admin
+      DB_APP_PASSWORD: ci_app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Create roles (same script as Docker)
+        run: bash db/init/01-roles.sh
+      - run: npm ci
+        working-directory: api
+      - name: Run migrations as chat_admin
+        run: npm run migration:run
+        working-directory: api
+      - name: Seed test data
+        run: npm run seed
+        working-directory: api
+      - name: Entities match migrations (no schema drift)
+        working-directory: api
+        # --check fails if the entities need a migration that has not been written yet
+        run: npm run migration:generate -- src/migrations/DriftCheck --check
+      - name: chat_app can write data but not change the schema
+        env:
+          PGUSER: chat_app
+          PGPASSWORD: ci_app
+        run: |
+          psql -d chatapp -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM users"
+          if psql -d chatapp -c "DROP TABLE messages"; then
+            echo "::error::chat_app was able to drop a table"; exit 1
+          fi
+      - name: Migrations can be reverted and re-applied
+        working-directory: api
+        run: |
+          npm run migration:revert
+          npm run migration:run
+
+  # 3. Docker: the production image builds
+  docker:
+    name: Docker image builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t chatapp-api ./api
+      - name: Image runs as non-root
+        run: test "$(docker run --rm chatapp-api whoami)" = "node"
