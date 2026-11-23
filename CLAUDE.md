@@ -59,7 +59,7 @@ Applies to all code: TypeScript, SQL, Docker, YAML and shell.
 - Short functions, clear names, few comments. A comment explains why, not what.
 - Do not add a dependency if a few lines of code do the job.
 - If a simpler solution is possible, say so and choose it.
-- Apply DRY principles
+- Apply DRY to real duplication: extract shared code when the same logic appears a second time, not before.
 
 ## Rules
 
