@@ -2,6 +2,7 @@
 // and is imported here.
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module.js';
 import { appDbOptions } from './db/data-source.js';
 import { HealthModule } from './health/health.module.js';
 
@@ -11,6 +12,7 @@ import { HealthModule } from './health/health.module.js';
     // the schema only changes through migrations.
     TypeOrmModule.forRootAsync({ useFactory: appDbOptions }),
     HealthModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
