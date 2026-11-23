@@ -3,9 +3,9 @@
 // Runs as chat_admin, because the seed uses TRUNCATE to start from a clean state.
 import fs from 'fs';
 import path from 'path';
-import AdminDataSource from './admin-data-source';
+import AdminDataSource from './admin-data-source.js';
 
-const seedFile = path.resolve(__dirname, '../../../db/seed/seed.sql');
+const seedFile = path.resolve(import.meta.dirname, '../../../db/seed/seed.sql');
 
 async function main(): Promise<void> {
   const sql = fs.readFileSync(seedFile, 'utf8');

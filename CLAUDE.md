@@ -6,7 +6,8 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 
 ## Stack
 - Client: React Native + Expo (TypeScript). Not started yet.
-- API: Node.js 22 + Express 5 + TypeScript, in `api/`
+- API: NestJS 12 (MVC) + TypeScript 6, ESM, in `api/`. Required by the Fullstack course
+- Web: Next.js. Required by the Fullstack course. Not started yet
 - Database: PostgreSQL 17 + TypeORM. Alternative design: MongoDB in `db/mongo/`
 - Containers: Docker + Docker Compose (dev), Hetzner VPS Ubuntu (prod)
 - Version control: GitHub + GitHub Flow
@@ -16,12 +17,12 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 - Project management: GitHub Projects (Kanban), user stories, MoSCoW
 
 ## Layout
-- `api/src/app.ts`: Express app without DB (imported by tests)
-- `api/src/server.ts`: connects to the DB, starts the server
-- `api/src/entities/`: TypeORM entities
+- `api/src/main.ts`: starts the Nest app. `api/src/setup.ts`: HTTP settings shared with tests
+- `api/src/app.module.ts`: root module, imports every feature module and the DB connection
+- `api/src/<feature>/`: one folder per feature: `<feature>.module.ts`, `.controller.ts`, `.service.ts`, `<name>.entity.ts`, `dto/`, and `.spec.ts` unit tests next to the code
 - `api/src/migrations/`: TypeORM migrations. The source of truth for the schema
-- `api/src/db/`: data sources (app and admin), seed script
-- `api/test/`: Jest tests
+- `api/src/db/`: DB config, app options (chat_app), admin data source (chat_admin, CLI only), seed script
+- `api/test/`: integration tests (`*.integration.spec.ts`, Nest app over HTTP with Supertest)
 - `db/init/`: runs once in the Postgres container. Creates roles only, never tables
 - `db/seed/seed.sql`: test data
 - `db/queries.sql`, `db/mongo/`: DB2 example queries and the MongoDB alternative design
@@ -29,11 +30,19 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 ## Commands
 Run npm commands inside `api/`. The DB must run first (`docker compose up -d db`).
 - Everything in Docker: `docker compose up --build` (from repo root)
-- API on your own computer: `npm run dev`
-- Lint / typecheck / test / build: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`
+- API on your own computer: `npm run dev` (nest start --watch)
+- New Nest feature: `npx nest g resource <name>` (then add the `.js` suffixes and tests)
+- Lint / format / typecheck / build: `npm run lint`, `npm run format`, `npm run typecheck`, `npm run build`
+- Tests: `npm test` (all), `npm run test:unit`, `npm run test:integration`
 - New migration from entity changes: `npm run migration:generate -- src/migrations/<Name>`
 - Run / revert / list migrations: `npm run migration:run`, `npm run migration:revert`, `npm run migration:show`
 - Seed: `npm run seed`
+
+## NestJS conventions (match what the course teaches)
+- ESM project (`"type": "module"`): relative imports end in `.js`, e.g. `import { UsersService } from './users.service.js'`.
+- MVC: controllers handle HTTP only, services hold the logic, entities model the data. Controllers never talk to the DB directly.
+- Validate input with DTOs and class-validator. Never trust `req.body` directly.
+- Register entities in the feature module with `TypeOrmModule.forFeature()` and add new entities to `api/src/db/config.ts`.
 
 ## Rules
 - Never commit directly to `main`. Work on `feature/<name>`, `fix/<name>` or `chore/<name>` and open a PR.

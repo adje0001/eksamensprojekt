@@ -62,15 +62,21 @@ export class InitialSchema1795432760760 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Reverse order of up()
-    await queryRunner.query(`ALTER TABLE "messages" DROP CONSTRAINT "FK_22133395bd13b970ccd0c34ab22"`);
-    await queryRunner.query(`ALTER TABLE "messages" DROP CONSTRAINT "FK_3bc55a7c3f9ed54b520bb5cfe23"`);
+    await queryRunner.query(
+      `ALTER TABLE "messages" DROP CONSTRAINT "FK_22133395bd13b970ccd0c34ab22"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "messages" DROP CONSTRAINT "FK_3bc55a7c3f9ed54b520bb5cfe23"`,
+    );
     await queryRunner.query(
       `ALTER TABLE "conversation_participants" DROP CONSTRAINT "FK_377d4041a495b81ee1a85ae026f"`,
     );
     await queryRunner.query(
       `ALTER TABLE "conversation_participants" DROP CONSTRAINT "FK_1559e8a16b828f2e836a2312800"`,
     );
-    await queryRunner.query(`ALTER TABLE "conversations" DROP CONSTRAINT "FK_81d92d15c62b3fff79c617c9043"`);
+    await queryRunner.query(
+      `ALTER TABLE "conversations" DROP CONSTRAINT "FK_81d92d15c62b3fff79c617c9043"`,
+    );
     await queryRunner.query(`DROP INDEX "public"."idx_messages_conversation_created"`);
     await queryRunner.query(`DROP INDEX "public"."idx_participants_user"`);
     await queryRunner.query(`DROP TABLE "messages"`);

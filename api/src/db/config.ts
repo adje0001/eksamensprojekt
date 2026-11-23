@@ -4,13 +4,13 @@
 import path from 'path';
 import dotenv from 'dotenv';
 import type { DataSourceOptions } from 'typeorm';
-import { Conversation } from '../entities/Conversation';
-import { ConversationParticipant } from '../entities/ConversationParticipant';
-import { Message } from '../entities/Message';
-import { User } from '../entities/User';
+import { Conversation } from '../conversations/conversation.entity.js';
+import { ConversationParticipant } from '../conversations/conversation-participant.entity.js';
+import { Message } from '../messages/message.entity.js';
+import { User } from '../users/user.entity.js';
 
 // api/src/db -> repo root (also works from api/dist/db after build)
-dotenv.config({ path: path.resolve(__dirname, '../../../.env'), quiet: true });
+dotenv.config({ path: path.resolve(import.meta.dirname, '../../../.env'), quiet: true });
 
 export function requireEnv(name: string): string {
   const value = process.env[name];
@@ -29,7 +29,7 @@ export function baseOptions(user: string, password: string): DataSourceOptions {
     username: user,
     password,
     entities: [User, Conversation, ConversationParticipant, Message],
-    migrations: [path.join(__dirname, '../migrations/*.{ts,js}')],
+    migrations: [path.join(import.meta.dirname, '../migrations/*.{ts,js}')],
     // Never let TypeORM change the schema on its own. All schema changes go through migrations.
     synchronize: false,
     logging: process.env.DB_LOGGING === 'true',

@@ -32,11 +32,11 @@ cd api && npm run dev
 | --- | --- | --- |
 | `db` | Postgres 17. `db/init/` creates roles on first start | Admin and app accounts with least privilege (DB2) |
 | `migrate` | One-off container: TypeORM migrations as `chat_admin`, then exits | Schema is versioned in Git. Only this container has the admin password |
-| `api` | Express API as `chat_app`, non-root container | The app can change data but never the schema |
+| `api` | NestJS API as `chat_app`, non-root container | The app can change data but never the schema |
 
 ## Checks on every pull request
 `.github/workflows/ci.yml` runs three jobs. All must pass before merge.
-1. **API:** lint, typecheck, Jest tests, build.
+1. **API:** lint, typecheck, unit and integration tests, build.
 2. **Database:** creates the roles, runs migrations, seeds, checks for drift between entities and migrations, checks that `chat_app` cannot drop tables, and reverts and re-runs the migrations.
 3. **Docker:** builds the image and checks it runs as non-root.
 

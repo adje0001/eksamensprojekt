@@ -6,7 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from './User';
+import { User } from '../users/user.entity.js';
 
 // Table: conversations. 1:1 chats have no title; group chats have is_group = true.
 @Entity({ name: 'conversations' })
