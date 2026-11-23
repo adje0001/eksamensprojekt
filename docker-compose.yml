@@ -1,13 +1,22 @@
+# Development environment: Postgres + migrations + API.
+# Start everything: docker compose up --build
+# Values come from .env (copy .env.example to .env first).
+
 services:
+  # PostgreSQL. On first start (empty volume) it runs db/init/: creates the roles, no tables.
   db:
     image: postgres:17
     container_name: chat-db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: chatapp
+      # Read by db/init/01-roles.sh to set the role passwords
+      DB_ADMIN_PASSWORD: ${DB_ADMIN_PASSWORD:?set DB_ADMIN_PASSWORD in .env}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD:?set DB_APP_PASSWORD in .env}
     ports:
-      - "5433:5432"
+      # Only reachable from this computer, so you can run the API and npm scripts outside Docker
+      - "127.0.0.1:5433:5432"
     volumes:
       - ./db/init:/docker-entrypoint-initdb.d:ro
       - pgdata:/var/lib/postgresql/data
@@ -16,6 +25,35 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  # One-off job: runs TypeORM migrations as chat_admin, then exits.
+  # Only this container gets the admin password. The API never does.
+  migrate:
+    build: ./api
+    command: ["node", "node_modules/typeorm/cli.js", "-d", "dist/db/admin-data-source.js", "migration:run"]
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: chatapp
+      DB_ADMIN_PASSWORD: ${DB_ADMIN_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # The API. Connects as chat_app (data only, no schema changes).
+  api:
+    build: ./api
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: chatapp
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD}
+    ports:
+      - "3000:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   pgdata:

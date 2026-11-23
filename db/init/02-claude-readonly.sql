@@ -1,4 +1,4 @@
--- DEV ONLY. Mounted into the Postgres container via docker-entrypoint-initdb.d.
+-- DEV ONLY. Runs after 01-roles.sh when the dev Postgres container starts with an empty volume.
 -- Read-only role used by the Postgres MCP server in Claude Code.
 -- Never run this on the production database.
 CREATE ROLE claude_ro LOGIN PASSWORD 'dev_only_change_me';
@@ -8,6 +8,6 @@ BEGIN
 END
 $$;
 GRANT USAGE ON SCHEMA public TO claude_ro;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO claude_ro;
--- Tables created later by migrations (run as the same owner) are readable too.
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO claude_ro;
+
+-- Tables created later by migrations (owned by chat_admin) are readable, nothing more.
+ALTER DEFAULT PRIVILEGES FOR ROLE chat_admin IN SCHEMA public GRANT SELECT ON TABLES TO claude_ro;
