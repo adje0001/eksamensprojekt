@@ -5,6 +5,7 @@ Shared codebase for three separately examined courses: Development Environments 
 Scenario: own project. A chat app with users, 1:1 and group conversations, and messages.
 
 ## Stack
+
 - Client: React Native + Expo (TypeScript). Not started yet.
 - API: NestJS 12 (MVC) + TypeScript 6, ESM, in `api/`. Required by the Fullstack course
 - Web: Next.js. Required by the Fullstack course. Not started yet
@@ -17,6 +18,7 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 - Project management: GitHub Projects (Kanban), user stories, MoSCoW
 
 ## Layout
+
 - `api/src/main.ts`: starts the Nest app. `api/src/setup.ts`: HTTP settings shared with tests
 - `api/src/app.module.ts`: root module, imports every feature module and the DB connection
 - `api/src/<feature>/`: one folder per feature: `<feature>.module.ts`, `.controller.ts`, `.service.ts`, `<name>.entity.ts`, `dto/`, and `.spec.ts` unit tests next to the code
@@ -28,7 +30,9 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 - `db/queries.sql`, `db/mongo/`: DB2 example queries and the MongoDB alternative design
 
 ## Commands
+
 Run npm commands inside `api/`. The DB must run first (`docker compose up -d db`).
+
 - Everything in Docker: `docker compose up --build` (from repo root)
 - API on your own computer: `npm run dev` (nest start --watch)
 - New Nest feature: `npx nest g resource <name>` (then add the `.js` suffixes and tests)
@@ -39,12 +43,26 @@ Run npm commands inside `api/`. The DB must run first (`docker compose up -d db`
 - Seed: `npm run seed`
 
 ## NestJS conventions (match what the course teaches)
+
 - ESM project (`"type": "module"`): relative imports end in `.js`, e.g. `import { UsersService } from './users.service.js'`.
 - MVC: controllers handle HTTP only, services hold the logic, entities model the data. Controllers never talk to the DB directly.
 - Validate input with DTOs and class-validator. Never trust `req.body` directly.
 - Register entities in the feature module with `TypeOrmModule.forFeature()` and add new entities to `api/src/db/config.ts`.
 
+## Keep it simple
+
+Applies to all code: TypeScript, SQL, Docker, YAML and shell.
+
+- Write the simplest code that solves the task and is efficient enough. No overengineering.
+- No abstractions, helpers, generics or design patterns "for later". Add them when a second real use appears.
+- Prefer the framework's built-in way (NestJS, TypeORM, Next.js, Expo) over custom solutions or extra libraries.
+- Short functions, clear names, few comments. A comment explains why, not what.
+- Do not add a dependency if a few lines of code do the job.
+- If a simpler solution is possible, say so and choose it.
+- Apply DRY principles
+
 ## Rules
+
 - Never commit directly to `main`. Work on `feature/<name>`, `fix/<name>` or `chore/<name>` and open a PR.
 - Every feature ships with tests. New routes need a happy-path test and a denied-access test.
 - The schema lives in TypeORM migrations only. Never use `synchronize: true`. Never add tables in `db/init/`.
@@ -61,10 +79,12 @@ Run npm commands inside `api/`. The DB must run first (`docker compose up -d db`
 - Keep changes small and explainable. Every group member must be able to explain the code at an individual oral exam.
 
 ## Database roles
+
 - `chat_admin`: owns the schema. Used only by migrations and the seed (`api/src/db/admin-data-source.ts`).
 - `chat_app`: used by the running API (`api/src/db/data-source.ts`). Data only, no DDL. Gets rights on new tables automatically via default privileges.
 - `claude_ro`: read-only, dev database only. Used by the Postgres MCP server.
 
 ## Docs
+
 - `docs/ai-setup.md`: how this Claude Code setup works and how to use it.
 - `db/init/README.md`: database roles and init scripts.
