@@ -26,7 +26,7 @@ The whole group uses the same Claude Code setup. It is committed to the repo, so
 1. Install jq: `brew install jq` (Mac). The hooks skip silently without it.
 2. `git pull`, then start Claude Code in the repo root.
 3. Approve the project MCP servers when asked.
-4. Check: `/mcp` lists playwright, `/agents` lists reviewer, typing `/` shows feature, migration and pr.
+4. Check: `/mcp` lists playwright, asking Claude "Which subagents are available in this project?" lists reviewer, typing `/` shows feature, migration and pr.
 5. Personal settings go in `.claude/settings.local.json` (git-ignored).
 
 ## Adding the Postgres MCP server (once the database runs)
