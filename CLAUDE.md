@@ -34,7 +34,7 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 - Root: `api/`, `web/`, `mobile/`, `db/`, `docs/`. Do not add folders named `client/` or `app/` at the root.
 - `api/src/main.ts`: starts the Nest app. `api/src/setup.ts`: HTTP settings shared with tests
 - `api/src/app.module.ts`: root module, imports every feature module and the DB connection
-- `api/src/<feature>/`: one folder per feature: `<feature>.module.ts`, `.controller.ts`, `.service.ts`, `<name>.entity.ts`, `dto/`, and `.spec.ts` unit tests next to the code
+- `api/src/<feature>/`: one folder per feature: `<feature>.module.ts`, `.controller.ts`, `.service.ts`, `entities/<name>.entity.ts`, `dto/`, and `.spec.ts` unit tests next to the code
 - `api/src/migrations/`: TypeORM migrations. The source of truth for the schema
 - `api/src/db/`: DB config, app options (chat_app), admin data source (chat_admin, CLI only), seed script
 - `api/test/`: integration tests (`*.integration.spec.ts`, Nest app over HTTP with Supertest)
