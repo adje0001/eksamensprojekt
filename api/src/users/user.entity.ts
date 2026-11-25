@@ -10,8 +10,11 @@ export class User {
   @Column({ type: 'varchar', length: 254, unique: true })
   email: string;
 
-  @Column({ type: 'varchar', length: 30, unique: true })
-  username: string;
+  @Column({ name: 'first_name', type: 'varchar', length: 50 })
+  firstName: string;
+
+  @Column({ name: 'last_name', type: 'varchar', length: 50 })
+  lastName: string;
 
   // A bcrypt hash is always exactly 60 characters. Never select this in API responses.
   @Column({ name: 'password_hash', type: 'char', length: 60, select: false })

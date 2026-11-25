@@ -8,27 +8,27 @@ TRUNCATE messages, conversation_participants, conversations, users
     RESTART IDENTITY CASCADE;
 
 -- 20 users (id 1-20 in this order). User 1 is admin.
-INSERT INTO users (email, username, password_hash, role, created_at) VALUES
-('oliver@test.dk',  'oliver',  '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'admin', now() - interval '60 days'),
-('filip@test.dk',   'filip',   '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '59 days'),
-('emma@test.dk',    'emma',    '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '58 days'),
-('noah@test.dk',    'noah',    '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '57 days'),
-('ida@test.dk',     'ida',     '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '56 days'),
-('william@test.dk', 'william', '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '55 days'),
-('freja@test.dk',   'freja',   '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '54 days'),
-('oscar@test.dk',   'oscar',   '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '53 days'),
-('clara@test.dk',   'clara',   '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '52 days'),
-('lucas@test.dk',   'lucas',   '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '51 days'),
-('alma@test.dk',    'alma',    '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '50 days'),
-('victor@test.dk',  'victor',  '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '49 days'),
-('agnes@test.dk',   'agnes',   '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '48 days'),
-('karl@test.dk',    'karl',    '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '47 days'),
-('sofie@test.dk',   'sofie',   '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '46 days'),
-('malthe@test.dk',  'malthe',  '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '45 days'),
-('ella@test.dk',    'ella',    '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '44 days'),
-('august@test.dk',  'august',  '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '43 days'),
-('laura@test.dk',   'laura',   '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '42 days'),
-('elias@test.dk',   'elias',   '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '41 days');
+INSERT INTO users (email, first_name, last_name, password_hash, role, created_at) VALUES
+('oliver@test.dk',  'Oliver',  'Nielsen',      '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'admin', now() - interval '60 days'),
+('filip@test.dk',   'Filip',   'Jensen',       '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '59 days'),
+('emma@test.dk',    'Emma',    'Hansen',       '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '58 days'),
+('noah@test.dk',    'Noah',    'Pedersen',     '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '57 days'),
+('ida@test.dk',     'Ida',     'Andersen',     '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '56 days'),
+('william@test.dk', 'William', 'Christensen',  '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '55 days'),
+('freja@test.dk',   'Freja',   'Larsen',       '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '54 days'),
+('oscar@test.dk',   'Oscar',   'Sørensen',     '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '53 days'),
+('clara@test.dk',   'Clara',   'Rasmussen',    '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '52 days'),
+('lucas@test.dk',   'Lucas',   'Jørgensen',    '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '51 days'),
+('alma@test.dk',    'Alma',    'Petersen',     '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '50 days'),
+('victor@test.dk',  'Victor',  'Madsen',       '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '49 days'),
+('agnes@test.dk',   'Agnes',   'Kristensen',   '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '48 days'),
+('karl@test.dk',    'Karl',    'Olsen',        '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '47 days'),
+('sofie@test.dk',   'Sofie',   'Thomsen',      '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '46 days'),
+('malthe@test.dk',  'Malthe',  'Christiansen', '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '45 days'),
+('ella@test.dk',    'Ella',    'Poulsen',      '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '44 days'),
+('august@test.dk',  'August',  'Johansen',     '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '43 days'),
+('laura@test.dk',   'Laura',   'Møller',       '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '42 days'),
+('elias@test.dk',   'Elias',   'Mortensen',    '$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu', 'user',  now() - interval '41 days');
 
 -- 20 conversations: 1-12 are 1:1 chats (no title), 13-20 are group chats
 INSERT INTO conversations (title, is_group, created_by, created_at) VALUES

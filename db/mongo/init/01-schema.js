@@ -18,7 +18,8 @@ function createCollection(name, properties) {
 
 createCollection("users", {
   email: { ...text, maxLength: 254 },
-  username: { ...text, maxLength: 30 },
+  firstName: { ...text, maxLength: 50 },
+  lastName: { ...text, maxLength: 50 },
   passwordHash: text,
   role: { enum: ["user", "admin"] },
   createdAt: date,
@@ -45,6 +46,5 @@ createCollection("messages", {
 });
 
 chat.users.createIndex({ email: 1 }, { unique: true });
-chat.users.createIndex({ username: 1 }, { unique: true });
 chat.conversations.createIndex({ "participants.userId": 1 });
 chat.messages.createIndex({ conversationId: 1, createdAt: -1, _id: -1 });
