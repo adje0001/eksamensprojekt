@@ -8,7 +8,7 @@ Claude Code sends event data to the script as JSON on stdin. We read it with `jq
 - **Event:** `PostToolUse`, after Edit or Write.
 - **Does:** runs `eslint --fix` on the edited file if it is `.ts`, `.tsx`, `.js` or `.jsx`.
 - **Why:** keeps AI-written code in line with our lint rules at once, instead of failing later in CI.
-- **Note:** uses `npx --no-install`, so it does nothing until ESLint is installed in the project.
+- **Note:** runs ESLint from the app folder the file is in (`api/`, `web/` or `mobile/`), because each app has its own ESLint and config. Uses `npx --no-install`, so it does nothing until `npm install` has run in that folder.
 
 ## log-prompt.sh
 - **Event:** `UserPromptSubmit`, every prompt you send.
@@ -20,5 +20,5 @@ Claude Code sends event data to the script as JSON on stdin. We read it with `jq
 ```bash
 export CLAUDE_PROJECT_DIR="$PWD"
 echo '{"prompt":"hello"}' | .claude/hooks/log-prompt.sh
-echo '{"tool_input":{"file_path":"src/index.ts"}}' | .claude/hooks/lint.sh
+echo "{\"tool_input\":{\"file_path\":\"$PWD/web/app/page.tsx\"}}" | .claude/hooks/lint.sh
 ```

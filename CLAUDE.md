@@ -7,8 +7,9 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 ## Stack
 
 - API: NestJS 12 (MVC) + TypeScript 6, ESM, in `api/`. Required by the Fullstack course
-- Web: Next.js (React) in `web/`. Required by the Fullstack course. Not started yet
-- Mobile: React Native + Expo (TypeScript) in `mobile/`. Not started yet
+- Web: Next.js 16 (React, App Router, Tailwind) in `web/`. Required by the Fullstack course. Skeleton only
+- Mobile: React Native + Expo SDK 58 (Expo Router, TypeScript) in `mobile/`. Skeleton only
+- Node 22 with npm 10 everywhere (`.nvmrc`). Each app has its own `package.json` and `engine-strict=true`
 - Database: PostgreSQL 17 + TypeORM. Alternative design: MongoDB in `db/mongo/`
 - Containers: Docker + Docker Compose (dev), Hetzner VPS Ubuntu (prod)
 - Version control: GitHub + GitHub Flow
@@ -39,10 +40,18 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 - `db/init/`: runs once in the Postgres container. Creates roles only, never tables
 - `db/seed/seed.sql`: test data
 - `db/queries.sql`, `db/mongo/`: DB2 example queries and the MongoDB alternative design
+- `web/app/`: Next.js routes. One folder per route with `page.tsx` (and `layout.tsx` where needed)
+- `mobile/src/app/`: Expo Router screens, one file per screen. Other mobile code goes in `mobile/src/`, outside `app/`
+- `web/AGENTS.md`, `mobile/AGENTS.md`: written by the frameworks. Read before changing that app. Keep them
 
 ## Commands
 
-Run npm commands inside `api/`. The DB must run first (`docker compose up -d db`).
+Run npm commands inside the app folder (`api/`, `web/` or `mobile/`). The API needs the DB running first (`docker compose up -d db`).
+
+- Web: `npm run dev` (http://localhost:3001, the API uses 3000), `npm run lint`, `npm run typecheck`, `npm run build`
+- Mobile: `npm start` (Expo Go), `npm run lint`, `npm run typecheck`, `npx expo-doctor`. Add packages with `npx expo install <pkg>`
+
+API:
 
 - Everything in Docker: `docker compose up --build` (from repo root)
 - API on your own computer: `npm run dev` (nest start --watch)
