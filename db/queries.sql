@@ -1,5 +1,5 @@
 -- Example queries for the chat feature (PostgreSQL)
--- Run AFTER schema.sql and seed.sql. Run one query at a time (cursor on it + Cmd/Ctrl + Enter).
+-- Run after `npm run migration:run` and `npm run seed` (in api/). Run one query at a time (cursor on it + Cmd/Ctrl + Enter).
 
 
 -- 1. Show a conversation: the newest messages with the sender's name
