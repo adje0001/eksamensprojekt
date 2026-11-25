@@ -57,6 +57,27 @@ cd api && npm run dev
 4. **Mobile:** lint, typecheck, `expo-doctor`.
 5. **Docker:** builds the image and checks it runs as non-root.
 
+## Branch protection on `main`
+GitHub enforces our GitHub Flow with a ruleset called **Protect main** (Settings → Rules). It applies to everyone, including repo admins. There is no bypass.
+
+| Rule | What it means for us |
+| --- | --- |
+| Require a pull request | Nobody can push straight to `main`. Every change goes through a `feature/`, `fix/` or `chore/` branch and a PR |
+| 1 approving review | Another group member must approve the PR. You cannot approve your own PR |
+| Required status checks | All five CI jobs above must be green before the merge button works |
+| Block force pushes | The history of `main` cannot be rewritten |
+| Block deletion | `main` cannot be deleted |
+
+Why: `CLAUDE.md` and the `/pr` skill already said "review and green CI before merge". Before the ruleset, that was only a convention, and several PRs were merged with no review. Now the platform enforces it.
+
+See it in action: a direct push to `main` is rejected with `GH013: Repository rule violations found`, and an open PR without approval shows "Review required".
+
+Settings we chose on purpose:
+- An approval stays valid when new commits are pushed to the PR. That is simpler for a group of three. "Dismiss stale approvals" can make it stricter.
+- A branch does not have to be up to date with `main` before merging, so we do not have to merge `main` into every branch.
+
+Inspect the ruleset from the terminal: `gh api repos/adje0001/eksamensprojekt/rulesets`
+
 ## AI setup
 The group uses a shared Claude Code setup. Start with [docs/ai-setup.md](docs/ai-setup.md).
 
