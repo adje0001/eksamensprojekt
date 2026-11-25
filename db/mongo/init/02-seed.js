@@ -11,26 +11,26 @@ function fixtureDate(daysAgo, minutesLater = 0) {
 
 const passwordHash = "$2b$10$Iipx4Lf4L9PhdfEBEM4GbekvUIB9/TtmjzDMI30E9NbxzDqBYCWtu";
 const users = [
-  ["oliver@test.dk", "oliver", "admin", 60],
-  ["filip@test.dk", "filip", "user", 59],
-  ["emma@test.dk", "emma", "user", 58],
-  ["noah@test.dk", "noah", "user", 57],
-  ["ida@test.dk", "ida", "user", 56],
-  ["william@test.dk", "william", "user", 55],
-  ["freja@test.dk", "freja", "user", 54],
-  ["oscar@test.dk", "oscar", "user", 53],
-  ["clara@test.dk", "clara", "user", 52],
-  ["lucas@test.dk", "lucas", "user", 51],
-  ["alma@test.dk", "alma", "user", 50],
-  ["victor@test.dk", "victor", "user", 49],
-  ["agnes@test.dk", "agnes", "user", 48],
-  ["karl@test.dk", "karl", "user", 47],
-  ["sofie@test.dk", "sofie", "user", 46],
-  ["malthe@test.dk", "malthe", "user", 45],
-  ["ella@test.dk", "ella", "user", 44],
-  ["august@test.dk", "august", "user", 43],
-  ["laura@test.dk", "laura", "user", 42],
-  ["elias@test.dk", "elias", "user", 41],
+  ["oliver@test.dk", "Oliver", "Nielsen", "admin", 60],
+  ["filip@test.dk", "Filip", "Jensen", "user", 59],
+  ["emma@test.dk", "Emma", "Hansen", "user", 58],
+  ["noah@test.dk", "Noah", "Pedersen", "user", 57],
+  ["ida@test.dk", "Ida", "Andersen", "user", 56],
+  ["william@test.dk", "William", "Christensen", "user", 55],
+  ["freja@test.dk", "Freja", "Larsen", "user", 54],
+  ["oscar@test.dk", "Oscar", "Sørensen", "user", 53],
+  ["clara@test.dk", "Clara", "Rasmussen", "user", 52],
+  ["lucas@test.dk", "Lucas", "Jørgensen", "user", 51],
+  ["alma@test.dk", "Alma", "Petersen", "user", 50],
+  ["victor@test.dk", "Victor", "Madsen", "user", 49],
+  ["agnes@test.dk", "Agnes", "Kristensen", "user", 48],
+  ["karl@test.dk", "Karl", "Olsen", "user", 47],
+  ["sofie@test.dk", "Sofie", "Thomsen", "user", 46],
+  ["malthe@test.dk", "Malthe", "Christiansen", "user", 45],
+  ["ella@test.dk", "Ella", "Poulsen", "user", 44],
+  ["august@test.dk", "August", "Johansen", "user", 43],
+  ["laura@test.dk", "Laura", "Møller", "user", 42],
+  ["elias@test.dk", "Elias", "Mortensen", "user", 41],
 ];
 
 const conversations = [
@@ -162,10 +162,11 @@ const messages = [
   [19, 1, "Det ser godt ud", 2, 30],
 ];
 
-chat.users.insertMany(users.map(([email, username, role, daysAgo], index) => ({
+chat.users.insertMany(users.map(([email, firstName, lastName, role, daysAgo], index) => ({
   _id: fixtureId(index + 1),
   email,
-  username,
+  firstName,
+  lastName,
   passwordHash,
   role,
   createdAt: fixtureDate(daysAgo),

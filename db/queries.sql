@@ -1,11 +1,11 @@
 -- Example queries for the chat feature (PostgreSQL)
--- Run AFTER schema.sql and seed.sql. Run one query at a time (cursor on it + Cmd/Ctrl + Enter).
+-- Run after `npm run migration:run` and `npm run seed` (in api/). Run one query at a time (cursor on it + Cmd/Ctrl + Enter).
 
 
 -- 1. Show a conversation: the newest messages with the sender's name
 --    LEFT JOIN so messages from deleted users (sender_id = NULL) are still shown
 SELECT m.id,
-       COALESCE(u.username, 'Slettet bruger') AS sender,
+       COALESCE(u.first_name || ' ' || u.last_name, 'Slettet bruger') AS sender,
        m.body,
        m.created_at
 FROM messages m
@@ -30,7 +30,7 @@ ORDER BY last_message_at DESC NULLS LAST;
 
 
 -- 3. Participants in a group chat
-SELECT u.username, p.joined_at
+SELECT u.first_name, u.last_name, p.joined_at
 FROM conversation_participants p
 JOIN users u ON u.id = p.user_id
 WHERE p.conversation_id = 14
@@ -38,7 +38,7 @@ ORDER BY p.joined_at;
 
 
 -- 4. Statistics: number of messages per user (users with 0 messages included)
-SELECT u.username, COUNT(m.id) AS messages_sent
+SELECT u.first_name, u.last_name, COUNT(m.id) AS messages_sent
 FROM users u
 LEFT JOIN messages m ON m.sender_id = u.id
 GROUP BY u.id
