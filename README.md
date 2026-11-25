@@ -9,7 +9,16 @@ Requirements: Docker Desktop, Node.js 22 (with its bundled npm 10), jq (`brew in
 
 Everyone uses the same Node version as CI and Docker, so `package-lock.json` stays the same on every machine.
 `.nvmrc` pins it, and `npm install` in `api/` refuses to run on another major version.
-With [fnm](https://github.com/Schniz/fnm): `brew install fnm`, then `fnm use --install-if-missing` in the repo root.
+With [fnm](https://github.com/Schniz/fnm) (one-time setup, macOS/zsh):
+
+```bash
+brew install fnm
+echo 'eval "$(fnm env --use-on-cd)"' >> ~/.zshrc   # without this, fnm use fails
+source ~/.zshrc
+fnm use --install-if-missing                        # in the repo root, reads .nvmrc
+```
+
+After that, fnm switches to Node 22 every time you `cd` into the repo. Other projects keep their own version.
 
 ```bash
 cp .env.example .env              # then set your own passwords in .env
