@@ -6,9 +6,9 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 
 ## Stack
 
-- Client: React Native + Expo (TypeScript). Not started yet.
 - API: NestJS 12 (MVC) + TypeScript 6, ESM, in `api/`. Required by the Fullstack course
-- Web: Next.js. Required by the Fullstack course. Not started yet
+- Web: Next.js (React) in `web/`. Required by the Fullstack course. Not started yet
+- Mobile: React Native + Expo (TypeScript) in `mobile/`. Not started yet
 - Database: PostgreSQL 17 + TypeORM. Alternative design: MongoDB in `db/mongo/`
 - Containers: Docker + Docker Compose (dev), Hetzner VPS Ubuntu (prod)
 - Version control: GitHub + GitHub Flow
@@ -17,8 +17,19 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 - Lint: ESLint
 - Project management: GitHub Projects (Kanban), user stories, MoSCoW
 
+## Architecture
+
+- `api/` (NestJS) is the only backend. All business logic and all database access live there.
+- `web/` (Next.js) and `mobile/` (Expo) are clients. Both call the API over HTTP. Neither talks to the database.
+- Do not put business logic or DB access in Next.js Route Handlers or Server Actions. Mobile could not use it, and rules would have to be enforced twice.
+- Realtime messages: a WebSocket gateway in Nest (`@nestjs/websockets` + socket.io). Both clients subscribe to it.
+- Auth: JWT issued by the API. Web keeps it in an httpOnly cookie, mobile in `expo-secure-store`.
+- Shared types: copy DTO shapes into each client for now. Add a shared package only if copying becomes a real problem.
+- Scope (MoSCoW): Must = API (auth, conversations, messages, realtime) + full web client. Should = mobile client with login, conversation list, read and send messages. Could = push notifications, images, typing indicator.
+
 ## Layout
 
+- Root: `api/`, `web/`, `mobile/`, `db/`, `docs/`. Do not add folders named `client/` or `app/` at the root.
 - `api/src/main.ts`: starts the Nest app. `api/src/setup.ts`: HTTP settings shared with tests
 - `api/src/app.module.ts`: root module, imports every feature module and the DB connection
 - `api/src/<feature>/`: one folder per feature: `<feature>.module.ts`, `.controller.ts`, `.service.ts`, `<name>.entity.ts`, `dto/`, and `.spec.ts` unit tests next to the code
