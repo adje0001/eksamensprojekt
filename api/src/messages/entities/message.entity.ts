@@ -7,8 +7,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Conversation } from '../conversations/conversation.entity.js';
-import { User } from '../users/user.entity.js';
+import { Conversation } from '../../conversations/entities/conversation.entity.js';
+import { User } from '../../users/entities/user.entity.js';
 
 // Table: messages.
 // The index (conversation_id, created_at DESC) serves "newest messages in a conversation".

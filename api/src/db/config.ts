@@ -4,10 +4,10 @@
 import path from 'path';
 import dotenv from 'dotenv';
 import type { DataSourceOptions } from 'typeorm';
-import { Conversation } from '../conversations/conversation.entity.js';
-import { ConversationParticipant } from '../conversations/conversation-participant.entity.js';
-import { Message } from '../messages/message.entity.js';
-import { User } from '../users/user.entity.js';
+import { Conversation } from '../conversations/entities/conversation.entity.js';
+import { ConversationParticipant } from '../conversations/entities/conversation-participant.entity.js';
+import { Message } from '../messages/entities/message.entity.js';
+import { User } from '../users/entities/user.entity.js';
 
 // api/src/db -> repo root (also works from api/dist/db after build)
 dotenv.config({ path: path.resolve(import.meta.dirname, '../../../.env'), quiet: true });

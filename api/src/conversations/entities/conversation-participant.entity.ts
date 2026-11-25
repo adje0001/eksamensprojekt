@@ -1,6 +1,6 @@
 import { CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Conversation } from './conversation.entity.js';
-import { User } from '../users/user.entity.js';
+import { User } from '../../users/entities/user.entity.js';
 
 // Table: conversation_participants. Join table between users and conversations.
 // Composite primary key: a user can only be in a conversation once.
