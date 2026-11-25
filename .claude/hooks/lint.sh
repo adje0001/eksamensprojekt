@@ -15,8 +15,12 @@ case "$file" in
   *) exit 0 ;;
 esac
 
-# Run from the project root. --no-install means: do nothing until ESLint is a project dependency.
-cd "$CLAUDE_PROJECT_DIR" || exit 0
+# Each app (api/, web/, mobile/) has its own ESLint and config, so run it from the app folder.
+# --no-install means: do nothing if ESLint is not installed there yet.
+app="${file#"$CLAUDE_PROJECT_DIR"/}"
+app="${app%%/*}"
+[ -f "$CLAUDE_PROJECT_DIR/$app/package.json" ] || exit 0
+cd "$CLAUDE_PROJECT_DIR/$app" || exit 0
 npx --no-install eslint --fix "$file" 2>/dev/null || true
 
 # Always exit 0 so a lint problem never blocks Claude. CI is the hard gate.

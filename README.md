@@ -37,12 +37,16 @@ cd api && npm run dev
 | `db` | Postgres 17. `db/init/` creates roles on first start | Admin and app accounts with least privilege (DB2) |
 | `migrate` | One-off container: TypeORM migrations as `chat_admin`, then exits | Schema is versioned in Git. Only this container has the admin password |
 | `api` | NestJS API as `chat_app`, non-root container | The app can change data but never the schema |
+| `web/` | Next.js web client, runs with `npm run dev` on port 3001 | Talks only to the API. See [web/README.md](web/README.md) |
+| `mobile/` | React Native + Expo app, runs with `npm start` and Expo Go | Talks only to the API. See [mobile/README.md](mobile/README.md) |
 
 ## Checks on every pull request
-`.github/workflows/ci.yml` runs three jobs. All must pass before merge.
+`.github/workflows/ci.yml` runs five jobs. All must pass before merge.
 1. **API:** lint, typecheck, unit and integration tests, build.
 2. **Database:** creates the roles, runs migrations, seeds, checks for drift between entities and migrations, checks that `chat_app` cannot drop tables, and reverts and re-runs the migrations.
-3. **Docker:** builds the image and checks it runs as non-root.
+3. **Web:** lint, typecheck, build.
+4. **Mobile:** lint, typecheck, `expo-doctor`.
+5. **Docker:** builds the image and checks it runs as non-root.
 
 ## AI setup
 The group uses a shared Claude Code setup. Start with [docs/ai-setup.md](docs/ai-setup.md).
