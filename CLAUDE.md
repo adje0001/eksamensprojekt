@@ -22,6 +22,7 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 
 - `api/` (NestJS) is the only backend. All business logic and all database access live there.
 - `web/` (Next.js) and `mobile/` (Expo) are clients. Both call the API over HTTP. Neither talks to the database.
+- `web/` is the only web client. Expo can also build for the browser, but we do not use that: `mobile/` targets iOS and Android only.
 - Do not put business logic or DB access in Next.js Route Handlers or Server Actions. Mobile could not use it, and rules would have to be enforced twice.
 - Realtime messages: a WebSocket gateway in Nest (`@nestjs/websockets` + socket.io). Both clients subscribe to it.
 - Auth: JWT issued by the API. Web keeps it in an httpOnly cookie, mobile in `expo-secure-store`.
