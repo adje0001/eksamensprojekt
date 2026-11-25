@@ -2,6 +2,7 @@
 // and is imported here.
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module.js';
 import { appDbOptions } from './db/data-source.js';
 import { HealthModule } from './health/health.module.js';
 import { UsersModule } from './users/users.module.js';
@@ -17,6 +18,7 @@ import { MessagesModule } from './messages/messages.module.js';
     UsersModule,
     ConversationsModule,
     MessagesModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

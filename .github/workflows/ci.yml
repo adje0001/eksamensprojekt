@@ -26,7 +26,8 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm test
+      # Integration tests need Postgres, so they run in the database job
+      - run: npm run test:unit
       - run: npm run build
 
   # 2. Database: roles, migrations, seed and least privilege, against a real Postgres
@@ -74,6 +75,9 @@ jobs:
         working-directory: api
       - name: Seed test data
         run: npm run seed
+        working-directory: api
+      - name: Integration tests (API over HTTP against this database)
+        run: npm run test:integration
         working-directory: api
       - name: Entities match migrations (no schema drift)
         working-directory: api

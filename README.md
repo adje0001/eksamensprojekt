@@ -5,7 +5,11 @@ Shared codebase for Development Environments, Databases 2 and Fullstack. Each co
 Scenario: own project. A chat app with users, 1:1 and group conversations, and messages.
 
 ## Getting started
-Requirements: Docker Desktop, Node.js 22, jq (`brew install jq`).
+Requirements: Docker Desktop, Node.js 22 (with its bundled npm 10), jq (`brew install jq`).
+
+Everyone uses the same Node version as CI and Docker, so `package-lock.json` stays the same on every machine.
+`.nvmrc` pins it, and `npm install` in `api/` refuses to run on another major version.
+With [fnm](https://github.com/Schniz/fnm): `brew install fnm`, then `fnm use --install-if-missing` in the repo root.
 
 ```bash
 cp .env.example .env              # then set your own passwords in .env

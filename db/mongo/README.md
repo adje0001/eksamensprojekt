@@ -26,7 +26,7 @@ and equivalent delete behavior when it implements writes.
 List Filip's conversations and show the latest messages in the exam group.
 
 ```js
-const filip = db.users.findOne({ username: "filip" });
+const filip = db.users.findOne({ email: "filip@test.dk" });
 db.conversations.find({ "participants.userId": filip._id }, { title: 1 });
 
 const group = db.conversations.findOne({ title: "Eksamensgruppe" });
