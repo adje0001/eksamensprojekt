@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, Injectable } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
 import { QueryFailedError, Repository } from 'typeorm';
-import { User } from '../users/user.entity.js';
+import { User } from '../users/entities/user.entity.js';
 import type { SignupDto } from './dto/signup.dto.js';
 
 // Higher = slower to brute force, but slower signup/login. 12 is a common default.

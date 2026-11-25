@@ -3,7 +3,7 @@ import { BadRequestException, ConflictException } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
 import { QueryFailedError } from 'typeorm';
 import { AuthService } from './auth.service.js';
-import type { User } from '../users/user.entity.js';
+import type { User } from '../users/entities/user.entity.js';
 import type { SignupDto } from './dto/signup.dto.js';
 
 // Unit test: AuthService with a fake repository. No HTTP, no database.
