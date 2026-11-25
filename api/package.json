@@ -6,7 +6,8 @@
   "type": "module",
   "main": "dist/main.js",
   "engines": {
-    "node": ">=22.13"
+    "node": ">=22.13 <23",
+    "npm": ">=10.9 <11"
   },
   "scripts": {
     "dev": "nest start --watch",
