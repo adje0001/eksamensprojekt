@@ -305,7 +305,8 @@ describe('Conversations endpoints (integration)', () => {
         participantIds: [validParticipant.id, 2_147_483_647],
       });
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('One or more participants were not found');
 
     const conversations = await db.query(
       `

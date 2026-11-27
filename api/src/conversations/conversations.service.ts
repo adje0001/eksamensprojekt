@@ -1,11 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, QueryFailedError, Repository } from 'typeorm';
 import { Conversation } from './entities/conversation.entity.js';
 import { ConversationParticipant } from './entities/conversation-participant.entity.js';
 import { CreateConversationDto } from './dto/create-conversation.dto.js';
 import { UpdateConversationDto } from './dto/update-conversation.dto.js';
 
+const POSTGRES_FOREIGN_KEY_VIOLATION_CODE = '23503';
 @Injectable()
 export class ConversationsService {
   constructor(
@@ -43,32 +44,43 @@ export class ConversationsService {
       throw new BadRequestException('A direct conversation must not have a title');
     }
 
-    return this.dataSource.transaction(async (manager) => {
-      const conversationsRepository = manager.getRepository(Conversation);
+    try {
+      return await this.dataSource.transaction(async (manager) => {
+        const conversationsRepository = manager.getRepository(Conversation);
 
-      const participantsRepository = manager.getRepository(ConversationParticipant);
+        const participantsRepository = manager.getRepository(ConversationParticipant);
 
-      const conversation = conversationsRepository.create({
-        title: dto.title ?? null,
-        isGroup: dto.isGroup,
-        createdById: currentUserId,
+        const conversation = conversationsRepository.create({
+          title: dto.title ?? null,
+          isGroup: dto.isGroup,
+          createdById: currentUserId,
+        });
+
+        const savedConversation = await conversationsRepository.save(conversation);
+
+        const participantIds = [currentUserId, ...dto.participantIds];
+
+        const participants = participantsRepository.create(
+          participantIds.map((userId) => ({
+            conversationId: savedConversation.id,
+            userId,
+          })),
+        );
+
+        await participantsRepository.save(participants);
+
+        return savedConversation;
       });
+    } catch (error) {
+      if (
+        error instanceof QueryFailedError &&
+        error.driverError.code === POSTGRES_FOREIGN_KEY_VIOLATION_CODE
+      ) {
+        throw new BadRequestException('One or more participants were not found');
+      }
 
-      const savedConversation = await conversationsRepository.save(conversation);
-
-      const participantIds = [currentUserId, ...dto.participantIds];
-
-      const participants = participantsRepository.create(
-        participantIds.map((userId) => ({
-          conversationId: savedConversation.id,
-          userId,
-        })),
-      );
-
-      await participantsRepository.save(participants);
-
-      return savedConversation;
-    });
+      throw error;
+    }
   }
 
   async findAllForUser(currentUserId: number): Promise<Conversation[]> {
