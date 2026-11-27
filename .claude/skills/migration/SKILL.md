@@ -5,7 +5,7 @@ disable-model-invocation: true
 ---
 Make a database change safely. Run commands inside `api/`. The dev DB must be running (`docker compose up -d db`).
 
-1. Update or create the TypeORM entity in its feature folder (`api/src/<feature>/<name>.entity.ts`). Add `@Index()` on columns used for filtering. Register new entities in `api/src/db/config.ts` and in the feature module with `TypeOrmModule.forFeature()`.
+1. Update or create the TypeORM entity in its feature folder (`api/src/<feature>/entities/<name>.entity.ts`). Add `@Index()` on columns used for filtering. Register new entities in `api/src/db/config.ts` and in the feature module with `TypeOrmModule.forFeature()`.
 2. Generate the migration: `npm run migration:generate -- src/migrations/<DescriptiveName>`. Never use `synchronize`. Never edit a migration that is already on main.
 3. Read the generated SQL and explain it to the user in plain words. Add short comments. Check that `down` reverses `up` in reverse order.
 4. If you need something TypeORM cannot express (e.g. a DESC index), write it by hand in the migration and mark the entity index with `synchronize: false`.

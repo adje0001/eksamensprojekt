@@ -7,8 +7,9 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 ## Stack
 
 - API: NestJS 12 (MVC) + TypeScript 6, ESM, in `api/`. Required by the Fullstack course
-- Web: Next.js (React) in `web/`. Required by the Fullstack course. Not started yet
-- Mobile: React Native + Expo (TypeScript) in `mobile/`. Not started yet
+- Web: Next.js 16 (React, App Router, Tailwind) in `web/`. Required by the Fullstack course. Skeleton only
+- Mobile: React Native + Expo SDK 58 (Expo Router, TypeScript) in `mobile/`. Skeleton only
+- Node 22 with npm 10 everywhere (`.nvmrc`). Each app has its own `package.json` and `engine-strict=true`
 - Database: PostgreSQL 17 + TypeORM. Alternative design: MongoDB in `db/mongo/`
 - Containers: Docker + Docker Compose (dev), Hetzner VPS Ubuntu (prod)
 - Version control: GitHub + GitHub Flow
@@ -21,6 +22,7 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 
 - `api/` (NestJS) is the only backend. All business logic and all database access live there.
 - `web/` (Next.js) and `mobile/` (Expo) are clients. Both call the API over HTTP. Neither talks to the database.
+- `web/` is the only web client. Expo can also build for the browser, but we do not use that: `mobile/` targets iOS and Android only.
 - Do not put business logic or DB access in Next.js Route Handlers or Server Actions. Mobile could not use it, and rules would have to be enforced twice.
 - Realtime messages: a WebSocket gateway in Nest (`@nestjs/websockets` + socket.io). Both clients subscribe to it.
 - Auth: JWT issued by the API. Web keeps it in an httpOnly cookie, mobile in `expo-secure-store`.
@@ -32,17 +34,25 @@ Scenario: own project. A chat app with users, 1:1 and group conversations, and m
 - Root: `api/`, `web/`, `mobile/`, `db/`, `docs/`. Do not add folders named `client/` or `app/` at the root.
 - `api/src/main.ts`: starts the Nest app. `api/src/setup.ts`: HTTP settings shared with tests
 - `api/src/app.module.ts`: root module, imports every feature module and the DB connection
-- `api/src/<feature>/`: one folder per feature: `<feature>.module.ts`, `.controller.ts`, `.service.ts`, `<name>.entity.ts`, `dto/`, and `.spec.ts` unit tests next to the code
+- `api/src/<feature>/`: one folder per feature: `<feature>.module.ts`, `.controller.ts`, `.service.ts`, `entities/<name>.entity.ts`, `dto/`, and `.spec.ts` unit tests next to the code
 - `api/src/migrations/`: TypeORM migrations. The source of truth for the schema
 - `api/src/db/`: DB config, app options (chat_app), admin data source (chat_admin, CLI only), seed script
 - `api/test/`: integration tests (`*.integration.spec.ts`, Nest app over HTTP with Supertest)
 - `db/init/`: runs once in the Postgres container. Creates roles only, never tables
 - `db/seed/seed.sql`: test data
 - `db/queries.sql`, `db/mongo/`: DB2 example queries and the MongoDB alternative design
+- `web/app/`: Next.js routes. One folder per route with `page.tsx` (and `layout.tsx` where needed)
+- `mobile/src/app/`: Expo Router screens, one file per screen. Other mobile code goes in `mobile/src/`, outside `app/`
+- `web/AGENTS.md`, `mobile/AGENTS.md`: written by the frameworks. Read before changing that app. Keep them
 
 ## Commands
 
-Run npm commands inside `api/`. The DB must run first (`docker compose up -d db`).
+Run npm commands inside the app folder (`api/`, `web/` or `mobile/`). The API needs the DB running first (`docker compose up -d db`).
+
+- Web: `npm run dev` (http://localhost:3001, the API uses 3000), `npm run lint`, `npm run typecheck`, `npm run build`
+- Mobile: `npm start` (Expo Go), `npm run lint`, `npm run typecheck`, `npx expo-doctor`. Add packages with `npx expo install <pkg>`
+
+API:
 
 - Everything in Docker: `docker compose up --build` (from repo root)
 - API on your own computer: `npm run dev` (nest start --watch)

@@ -1,5 +1,5 @@
 # CI: runs on every pull request to main and on every push to main.
-# Three jobs run in parallel. All must pass before a PR is merged.
+# All jobs run in parallel. All must pass before a PR is merged.
 name: CI
 
 on:
@@ -98,7 +98,45 @@ jobs:
           npm run migration:revert
           npm run migration:run
 
-  # 3. Docker: the production image builds
+  # 3. Web client (Next.js): lint, typecheck, build
+  web:
+    name: Web lint, typecheck, build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+
+  # 4. Mobile client (Expo): lint, typecheck, Expo config check
+  mobile:
+    name: Mobile lint, typecheck, doctor
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npx expo-doctor
+
+  # 5. Docker: the production image builds
   docker:
     name: Docker image builds
     runs-on: ubuntu-latest
