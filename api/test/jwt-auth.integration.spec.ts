@@ -27,6 +27,9 @@ describe('JWT auth (integration)', () => {
       .post('/auth/signup')
       .send({ firstName, lastName: 'Test', email, password: PASSWORD, confirmPassword: PASSWORD });
     const login = await http().post('/auth/login').send({ email, password: PASSWORD });
+    // Fail here with a clear message instead of later with an undefined id or token
+    expect(signup.status).toBe(201);
+    expect(login.status).toBe(200);
     return { id: signup.body.id as number, email, token: login.body.accessToken as string };
   };
 
@@ -108,6 +111,18 @@ describe('JWT auth (integration)', () => {
         expect(res.status).toBe(401);
       },
     );
+
+    it.each(routes)('%s %s with the wrong scheme returns 401', async (method, path) => {
+      const res = await http()[method](path).set('Authorization', 'Basic dXNlcjpwYXNz');
+
+      expect(res.status).toBe(401);
+    });
+
+    it.each(routes)('%s %s with a token that is not a JWT returns 401', async (method, path) => {
+      const res = await http()[method](path).set('Authorization', 'Bearer not-a-jwt');
+
+      expect(res.status).toBe(401);
+    });
 
     it.each(routes)('%s %s with an expired token returns 401', async (method, path) => {
       const expired = await jwt.signAsync({ sub: 1, role: 'user' }, { expiresIn: -60 });

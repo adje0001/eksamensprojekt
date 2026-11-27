@@ -72,6 +72,11 @@ describe('AuthService.login', () => {
     service = new AuthService(repo as never, jwt as never);
   });
 
+  // Removes the bcrypt spy even when a test fails, so it cannot affect later tests
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('signs a token with the user id and role', async () => {
     repo.findOne.mockResolvedValue({ id: 7, role: 'user', passwordHash: hash });
 
@@ -101,6 +106,5 @@ describe('AuthService.login', () => {
       service.login({ email: 'nobody@example.com', password: PASSWORD }),
     ).rejects.toThrow(UnauthorizedException);
     expect(compare).toHaveBeenCalledTimes(1);
-    compare.mockRestore();
   });
 });
