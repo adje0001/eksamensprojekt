@@ -23,6 +23,7 @@ export default {
       ...shared,
       displayName: 'integration',
       roots: ['<rootDir>/test'],
+      setupFiles: [...shared.setupFiles, '<rootDir>/test/setup-env.ts'],
       testMatch: ['**/*.integration.spec.ts'],
     },
   ],

@@ -40,11 +40,14 @@ export class UsersService {
       return [];
     }
 
+    // % and _ are wildcards in LIKE. Escape them (and the escape character \) so they match literally.
+    const pattern = `%${term.replace(/[\\%_]/g, '\\$&')}%`;
+
     const users = await this.usersRepository.find({
       where: [
-        { firstName: ILike(`%${term}%`) },
-        { lastName: ILike(`%${term}%`) },
-        { email: ILike(`%${term}%`) },
+        { firstName: ILike(pattern) },
+        { lastName: ILike(pattern) },
+        { email: ILike(pattern) },
       ],
       order: {
         firstName: 'ASC',

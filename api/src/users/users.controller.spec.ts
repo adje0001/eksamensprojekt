@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 import { UsersController } from './users.controller.js';
 import { UsersService } from './users.service.js';
 
@@ -31,7 +32,11 @@ describe('UsersController', () => {
           },
         },
       ],
-    }).compile();
+    })
+      // The guard is tested in test/jwt-auth.integration.spec.ts. Here we only test the controller.
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get(UsersController);
   });
