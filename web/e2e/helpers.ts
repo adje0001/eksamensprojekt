@@ -4,13 +4,12 @@ import { expect, type APIRequestContext, type Page } from "@playwright/test";
 export const API_URL = process.env.API_URL ?? "http://localhost:3000";
 export const PASSWORD = "Secret123!";
 
-let counter = 0;
-
 export function newUser(firstName = "Anna") {
   return {
     firstName,
     lastName: "Jensen",
-    email: `e2e-${Date.now()}-${counter++}@example.com`,
+    // randomUUID: Playwright runs tests in parallel processes, so a per-process counter could collide
+    email: `e2e-${crypto.randomUUID()}@example.com`,
     password: PASSWORD,
   };
 }

@@ -65,11 +65,19 @@ export async function updateProfile(_prev: FormState, formData: FormData): Promi
   return { message: "Profile saved", values };
 }
 
-export async function deleteAccount() {
+export async function deleteAccount(): Promise<FormState> {
   const token = await getToken();
   if (!token) redirect("/login");
 
-  await api("/users/me", { method: "DELETE", token });
+  const res = await api("/users/me", { method: "DELETE", token });
+  // 401: the token expired. 404: the account is already gone. Either way, log out.
+  if (res.status === 401 || res.status === 404) {
+    await clearToken();
+    redirect("/login");
+  }
+  // Anything else that failed: keep the user logged in and say so, never claim success
+  if (!res.ok) return { error: errorMessage(res.data) };
+
   await clearToken();
   redirect("/login?deleted=1");
 }

@@ -81,6 +81,12 @@ describe('UsersService', () => {
     });
   });
 
+  it('throws NotFoundException from findMe when the user no longer exists', async () => {
+    findOneBy.mockResolvedValue(null);
+
+    await expect(service.findMe(999)).rejects.toThrow(NotFoundException);
+  });
+
   it('throws NotFoundException when the user does not exist', async () => {
     findOneBy.mockResolvedValue(null);
 

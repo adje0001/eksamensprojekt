@@ -12,6 +12,8 @@ export default defineConfig({
     baseURL: "http://localhost:3001",
     trace: "on-first-retry",
   },
+  // Chromium only. In CI the app runs in production mode, so the token cookie is `secure`.
+  // Chromium accepts secure cookies on http://localhost, other browsers may not.
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   // Starts the web app. Locally it reuses `npm run dev` if it is already running.
   webServer: {

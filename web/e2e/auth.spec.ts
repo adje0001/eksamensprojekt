@@ -90,6 +90,7 @@ test.describe("log in and out", () => {
 
     const cookie = (await context.cookies()).find((c) => c.name === "token");
     expect(cookie?.httpOnly).toBe(true);
+    expect(cookie?.sameSite).toBe("Lax");
     expect(await page.evaluate(() => document.cookie)).not.toContain("token");
   });
 
@@ -104,6 +105,19 @@ test.describe("log in and out", () => {
   });
 
   test("5. pages that need login send you to /login (denied access)", async ({ page }) => {
+    for (const path of ["/", "/profile"]) {
+      await page.goto(path);
+      await expect(page).toHaveURL("/login");
+    }
+  });
+
+  test("5b. a cookie the API rejects also sends you to /login (denied access)", async ({
+    page,
+    context,
+  }) => {
+    // proxy.ts lets this through (the cookie exists). The API must reject it.
+    await context.addCookies([{ name: "token", value: "not-a-real-token", url: "http://localhost:3001" }]);
+
     for (const path of ["/", "/profile"]) {
       await page.goto(path);
       await expect(page).toHaveURL("/login");
@@ -172,5 +186,23 @@ test.describe("profile", () => {
 
     await submitLogin(page, user);
     await expect(page.getByText("Invalid email or password")).toBeVisible();
+  });
+
+  test("8b. a delete the API refuses does not claim the account was deleted", async ({
+    page,
+    request,
+  }) => {
+    const user = track(newUser());
+    await createUserViaApi(request, user);
+    await logInViaForm(page, user);
+    await page.goto("/profile");
+
+    // The account disappears behind the page's back, so the API answers 404
+    await deleteUserViaApi(request, user);
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Delete account" }).click();
+
+    await expect(page).toHaveURL("/login");
+    await expect(page.getByText("Your account has been deleted.")).not.toBeVisible();
   });
 });
