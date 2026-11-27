@@ -29,7 +29,6 @@ export function baseOptions(user: string, password: string): DataSourceOptions {
     username: user,
     password,
     entities: [User, Conversation, ConversationParticipant, Message],
-    migrations: [path.join(import.meta.dirname, '../migrations/*.{ts,js}')],
     // Never let TypeORM change the schema on its own. All schema changes go through migrations.
     synchronize: false,
     logging: process.env.DB_LOGGING === 'true',
