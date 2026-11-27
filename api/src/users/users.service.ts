@@ -33,6 +33,17 @@ export class UsersService {
     };
   }
 
+  // The logged-in user's own profile. Includes email, unlike the public findOne().
+  async findMe(id: number) {
+    const user = await this.usersRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} was not found`);
+    }
+
+    return { id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email };
+  }
+
   async search(searchTerm: string) {
     const term = searchTerm.trim();
 

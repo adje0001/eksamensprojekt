@@ -50,12 +50,13 @@ cd api && npm run dev
 | `mobile/` | React Native + Expo app, runs with `npm start` and Expo Go | Talks only to the API. See [mobile/README.md](mobile/README.md) |
 
 ## Checks on every pull request
-`.github/workflows/ci.yml` runs five jobs. All must pass before merge.
+`.github/workflows/ci.yml` runs six jobs. All must pass before merge.
 1. **API:** lint, typecheck, unit and integration tests, build.
 2. **Database:** creates the roles, runs migrations, seeds, checks for drift between entities and migrations, checks that `chat_app` cannot drop tables, and reverts and re-runs the migrations.
 3. **Web:** lint, typecheck, build.
 4. **Mobile:** lint, typecheck, `expo-doctor`.
-5. **Docker:** builds the image and checks it runs as non-root.
+5. **E2E:** starts the database and API with Docker Compose, then runs the Playwright tests in `web/e2e/` in a real browser.
+6. **Docker:** builds the image and checks it runs as non-root.
 
 ## Branch protection on `main`
 GitHub enforces our GitHub Flow with a ruleset called **Protect main** (Settings → Rules). It applies to everyone, including repo admins. There is no bypass.
@@ -64,7 +65,7 @@ GitHub enforces our GitHub Flow with a ruleset called **Protect main** (Settings
 | --- | --- |
 | Require a pull request | Nobody can push straight to `main`. Every change goes through a `feature/`, `fix/` or `chore/` branch and a PR |
 | 1 approving review | Another group member must approve the PR. You cannot approve your own PR |
-| Required status checks | All five CI jobs above must be green before the merge button works |
+| Required status checks | The five original CI jobs must be green before the merge button works. The E2E job will be added once it has run green on `main` |
 | Block force pushes | The history of `main` cannot be rewritten |
 | Block deletion | `main` cannot be deleted |
 
