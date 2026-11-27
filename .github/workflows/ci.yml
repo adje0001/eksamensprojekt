@@ -59,6 +59,7 @@ jobs:
       DB_NAME: chatapp
       DB_ADMIN_PASSWORD: ci_admin
       DB_APP_PASSWORD: ci_app
+      JWT_SECRET: ci_jwt_secret_not_used_anywhere_else
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

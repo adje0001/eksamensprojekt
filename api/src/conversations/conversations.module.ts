@@ -4,6 +4,6 @@ import { ConversationsService } from './conversations.service.js';
 
 @Module({
   controllers: [ConversationsController],
-  providers: [ConversationsService]
+  providers: [ConversationsService],
 })
 export class ConversationsModule {}

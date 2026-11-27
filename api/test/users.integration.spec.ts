@@ -9,6 +9,11 @@ describe('Users endpoints (integration)', () => {
   let app: INestApplication;
   let db: DataSource;
   let userId: number;
+  let token: string;
+
+  // All /users routes need a logged-in user
+  const get = (path: string) =>
+    request(app.getHttpServer()).get(path).set('Authorization', `Bearer ${token}`);
 
   const email = `users-test-${Date.now()}@example.com`;
 
@@ -43,6 +48,12 @@ describe('Users endpoints (integration)', () => {
     );
 
     userId = user.id;
+
+    // The seed hash above is bcrypt for 'password123'
+    const login = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email, password: 'password123' });
+    token = login.body.accessToken;
   });
 
   afterAll(async () => {
@@ -52,7 +63,7 @@ describe('Users endpoints (integration)', () => {
   });
 
   it('returns a public user profile', async () => {
-    const response = await request(app.getHttpServer()).get(`/users/${userId}`);
+    const response = await get(`/users/${userId}`);
 
     expect(response.status).toBe(200);
 
@@ -68,7 +79,7 @@ describe('Users endpoints (integration)', () => {
   });
 
   it('returns users matching a case-insensitive search', async () => {
-    const response = await request(app.getHttpServer()).get('/users').query({
+    const response = await get('/users').query({
       search: email.toUpperCase(),
     });
 
@@ -88,7 +99,7 @@ describe('Users endpoints (integration)', () => {
   });
 
   it('returns 404 when the user does not exist', async () => {
-    const response = await request(app.getHttpServer()).get('/users/2147483647');
+    const response = await get('/users/2147483647');
 
     expect(response.status).toBe(404);
 
@@ -100,7 +111,7 @@ describe('Users endpoints (integration)', () => {
   });
 
   it('returns 400 when the user id is not a number', async () => {
-    const response = await request(app.getHttpServer()).get('/users/not-a-number');
+    const response = await get('/users/not-a-number');
 
     expect(response.status).toBe(400);
     expect(response.body).toMatchObject({
@@ -110,9 +121,16 @@ describe('Users endpoints (integration)', () => {
   });
 
   it('returns an empty array when no search term is provided', async () => {
-    const response = await request(app.getHttpServer()).get('/users');
+    const response = await get('/users');
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual([]);
+  });
+
+  it.each(['%', '_'])('treats %s in the search term as a normal character', async (wildcard) => {
+    const response = await get('/users').query({ search: wildcard });
+
+    expect(response.status).toBe(200);
+    expect(response.body).not.toContainEqual(expect.objectContaining({ id: userId }));
   });
 });
