@@ -1,8 +1,8 @@
 import { jest } from '@jest/globals';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import type { FindManyOptions } from 'typeorm';
+import { type FindManyOptions, QueryFailedError, DeleteResult } from 'typeorm';
 import { User } from './entities/user.entity.js';
 import { UsersService } from './users.service.js';
 
@@ -13,9 +13,15 @@ describe('UsersService', () => {
 
   let find: jest.Mock<(options?: FindManyOptions<User>) => Promise<User[]>>;
 
+  let save: jest.Mock<(user: User) => Promise<User>>;
+
+  let deleteUser: jest.Mock<(id: number) => Promise<DeleteResult>>;
+
   beforeEach(async () => {
     findOneBy = jest.fn();
     find = jest.fn();
+    save = jest.fn();
+    deleteUser = jest.fn();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -25,6 +31,8 @@ describe('UsersService', () => {
           useValue: {
             findOneBy,
             find,
+            save,
+            delete: deleteUser,
           },
         },
       ],
@@ -113,5 +121,113 @@ describe('UsersService', () => {
 
     expect(result).toEqual([]);
     expect(find).not.toHaveBeenCalled();
+  });
+
+  it('updates the provided fields and returns the updated profile', async () => {
+    const existingUser: User = {
+      id: 1,
+      firstName: 'Filip',
+      lastName: 'Jensen',
+      email: 'filip@test.dk',
+      passwordHash: 'not-returned',
+      role: 'user',
+      createdAt: new Date(),
+    };
+
+    findOneBy.mockResolvedValue(existingUser);
+    save.mockImplementation((user) => Promise.resolve(user));
+
+    const result = await service.update(1, {
+      firstName: '  Philip  ',
+      email: '  PHILIP@TEST.DK  ',
+    });
+
+    expect(findOneBy).toHaveBeenCalledWith({ id: 1 });
+
+    expect(save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 1,
+        firstName: 'Philip',
+        lastName: 'Jensen',
+        email: 'philip@test.dk',
+      }),
+    );
+
+    expect(result).toEqual({
+      id: 1,
+      firstName: 'Philip',
+      lastName: 'Jensen',
+      email: 'philip@test.dk',
+    });
+  });
+
+  it('throws NotFoundException when updating an unknown user', async () => {
+    findOneBy.mockResolvedValue(null);
+
+    await expect(service.update(999, { firstName: 'Philip' })).rejects.toThrow(NotFoundException);
+
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  it('rejects a first name containing only whitespace', async () => {
+    findOneBy.mockResolvedValue({
+      id: 1,
+      firstName: 'Filip',
+      lastName: 'Jensen',
+      email: 'filip@test.dk',
+      passwordHash: 'not-returned',
+      role: 'user',
+      createdAt: new Date(),
+    });
+
+    await expect(service.update(1, { firstName: '   ' })).rejects.toThrow(BadRequestException);
+
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  it('throws ConflictException when the email is already registered', async () => {
+    findOneBy.mockResolvedValue({
+      id: 1,
+      firstName: 'Filip',
+      lastName: 'Jensen',
+      email: 'filip@test.dk',
+      passwordHash: 'not-returned',
+      role: 'user',
+      createdAt: new Date(),
+    });
+
+    save.mockRejectedValue(
+      new QueryFailedError(
+        'UPDATE users',
+        [],
+        Object.assign(new Error('duplicate email'), { code: '23505' }),
+      ),
+    );
+
+    await expect(
+      service.update(1, {
+        email: 'existing@test.dk',
+      }),
+    ).rejects.toThrow(ConflictException);
+  });
+
+  it('deletes an existing user', async () => {
+    deleteUser.mockResolvedValue({
+      raw: [],
+      affected: 1,
+    });
+
+    await expect(service.remove(1)).resolves.toBeUndefined();
+
+    expect(deleteUser).toHaveBeenCalledWith(1);
+  });
+
+  it('throws NotFoundException when deleting an unknown user', async () => {
+    deleteUser.mockResolvedValue({
+      raw: [],
+      affected: 0,
+    });
+
+    await expect(service.remove(999)).rejects.toThrow(NotFoundException);
   });
 });
