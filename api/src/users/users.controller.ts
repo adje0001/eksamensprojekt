@@ -26,7 +26,14 @@ export class UsersController {
     return this.usersService.search(searchTerm);
   }
 
-  // The id comes from the token, never from the URL or body, so users can only change themselves
+  // The /me routes take the id from the token, never from the URL or body,
+  // so users can only see, change or delete themselves.
+  // GET /me must stay above GET /:id, or ParseIntPipe would try to read "me" as an id.
+  @Get('me')
+  findMe(@CurrentUser() user: JwtPayload) {
+    return this.usersService.findMe(user.sub);
+  }
+
   @Patch('me')
   updateMe(@CurrentUser() user: JwtPayload, @Body() dto: UpdateUserDto) {
     return this.usersService.update(user.sub, dto);

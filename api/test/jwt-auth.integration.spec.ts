@@ -91,6 +91,7 @@ describe('JWT auth (integration)', () => {
     const routes = [
       ['get', '/users?search=a'],
       ['get', '/users/1'],
+      ['get', '/users/me'],
       ['patch', '/users/me'],
       ['delete', '/users/me'],
     ] as const;
@@ -130,6 +131,22 @@ describe('JWT auth (integration)', () => {
       const res = await http()[method](path).set('Authorization', `Bearer ${expired}`);
 
       expect(res.status).toBe(401);
+    });
+  });
+
+  describe('GET /users/me', () => {
+    it('returns the logged-in user, including email', async () => {
+      const anna = await createUser('Anna');
+
+      const res = await http().get('/users/me').set('Authorization', `Bearer ${anna.token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({
+        id: anna.id,
+        firstName: 'Anna',
+        lastName: 'Test',
+        email: anna.email,
+      });
     });
   });
 

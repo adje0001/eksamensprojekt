@@ -62,6 +62,25 @@ describe('UsersService', () => {
     });
   });
 
+  it('returns the own profile with email but without hash or role', async () => {
+    findOneBy.mockResolvedValue({
+      id: 1,
+      firstName: 'Filip',
+      lastName: 'Jensen',
+      email: 'filip@test.dk',
+      passwordHash: 'not-returned',
+      role: 'user',
+      createdAt: new Date(),
+    });
+
+    expect(await service.findMe(1)).toEqual({
+      id: 1,
+      firstName: 'Filip',
+      lastName: 'Jensen',
+      email: 'filip@test.dk',
+    });
+  });
+
   it('throws NotFoundException when the user does not exist', async () => {
     findOneBy.mockResolvedValue(null);
 
