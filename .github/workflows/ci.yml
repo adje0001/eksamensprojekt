@@ -59,6 +59,7 @@ jobs:
       DB_NAME: chatapp
       DB_ADMIN_PASSWORD: ci_admin
       DB_APP_PASSWORD: ci_app
+      JWT_SECRET: ci_jwt_secret_not_used_anywhere_else
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -136,7 +137,47 @@ jobs:
       - run: npm run typecheck
       - run: npx expo-doctor
 
-  # 5. Docker: the production image builds
+  # 5. End-to-end: the web app in a real browser against the real API and database
+  e2e:
+    name: E2E web against API
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start database, migrations and API with Docker Compose
+        # Throwaway values for this CI run only. Not real secrets.
+        run: |
+          printf '%s\n' \
+            POSTGRES_PASSWORD=ci_postgres \
+            DB_ADMIN_PASSWORD=ci_admin \
+            DB_APP_PASSWORD=ci_app \
+            JWT_SECRET=ci_jwt_secret_not_used_anywhere_else > .env
+          docker compose up -d --build
+      - name: Wait for the API
+        run: timeout 120 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+        working-directory: web
+      - run: npx playwright install --with-deps chromium
+        working-directory: web
+      # playwright.config.ts builds and starts the web app (npm run build && npm run start)
+      - run: npm run test:e2e
+        working-directory: web
+      - name: API logs (on failure)
+        if: failure()
+        run: docker compose logs api
+      - name: Upload Playwright report (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: web/playwright-report
+          retention-days: 7
+
+  # 6. Docker: the production image builds
   docker:
     name: Docker image builds
     runs-on: ubuntu-latest

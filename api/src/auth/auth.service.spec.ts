@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { BadRequestException, ConflictException } from '@nestjs/common';
+import { BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
 import { QueryFailedError } from 'typeorm';
 import { AuthService } from './auth.service.js';
@@ -21,7 +21,7 @@ describe('AuthService.signup', () => {
 
   beforeEach(() => {
     repo = { save: jest.fn((user) => Promise.resolve({ id: 1, ...user })) };
-    service = new AuthService(repo as never);
+    service = new AuthService(repo as never, {} as never);
   });
 
   it('saves a lowercase email and a bcrypt hash, and returns no password', async () => {
@@ -52,5 +52,59 @@ describe('AuthService.signup', () => {
     );
 
     await expect(service.signup(dto)).rejects.toThrow(ConflictException);
+  });
+});
+
+describe('AuthService.login', () => {
+  const PASSWORD = 'Secret123!';
+  let hash: string;
+  let repo: { findOne: jest.Mock<() => Promise<Partial<User> | null>> };
+  let jwt: { signAsync: jest.Mock<(payload: object) => Promise<string>> };
+  let service: AuthService;
+
+  beforeAll(async () => {
+    hash = await bcrypt.hash(PASSWORD, 4); // low cost, tests only
+  });
+
+  beforeEach(() => {
+    repo = { findOne: jest.fn() };
+    jwt = { signAsync: jest.fn(() => Promise.resolve('signed-token')) };
+    service = new AuthService(repo as never, jwt as never);
+  });
+
+  // Removes the bcrypt spy even when a test fails, so it cannot affect later tests
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('signs a token with the user id and role', async () => {
+    repo.findOne.mockResolvedValue({ id: 7, role: 'user', passwordHash: hash });
+
+    const result = await service.login({ email: 'Anna@Example.com', password: PASSWORD });
+
+    expect(repo.findOne).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { email: 'anna@example.com' } }),
+    );
+    expect(jwt.signAsync).toHaveBeenCalledWith({ sub: 7, role: 'user' });
+    expect(result).toEqual({ accessToken: 'signed-token' });
+  });
+
+  it('throws 401 for a wrong password', async () => {
+    repo.findOne.mockResolvedValue({ id: 7, role: 'user', passwordHash: hash });
+
+    await expect(
+      service.login({ email: 'anna@example.com', password: 'Wrong123!' }),
+    ).rejects.toThrow(UnauthorizedException);
+    expect(jwt.signAsync).not.toHaveBeenCalled();
+  });
+
+  it('still runs bcrypt for an unknown email, so the response time does not reveal it', async () => {
+    repo.findOne.mockResolvedValue(null);
+    const compare = jest.spyOn(bcrypt, 'compare');
+
+    await expect(
+      service.login({ email: 'nobody@example.com', password: PASSWORD }),
+    ).rejects.toThrow(UnauthorizedException);
+    expect(compare).toHaveBeenCalledTimes(1);
   });
 });
