@@ -4,7 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConversationsService } from './conversations.service.js';
 import { Conversation } from './entities/conversation.entity.js';
 import { ConversationParticipant } from './entities/conversation-participant.entity.js';
-import { DataSource, FindManyOptions, FindOneOptions } from 'typeorm';
+import { DataSource, DeleteResult, FindManyOptions, FindOneOptions } from 'typeorm';
 
 describe('ConversationsService', () => {
   let service: ConversationsService;
@@ -23,6 +23,8 @@ describe('ConversationsService', () => {
   const conversationsRepository = {
     create: jest.fn<(input: ConversationInput) => Conversation>(),
     save: jest.fn<(conversation: Conversation) => Promise<Conversation>>(),
+    findOne: jest.fn<(options: FindOneOptions<Conversation>) => Promise<Conversation | null>>(),
+    delete: jest.fn<(criteria: { id: number; createdById: number }) => Promise<DeleteResult>>(),
   };
 
   const participantsRepository = {
@@ -336,5 +338,75 @@ describe('ConversationsService', () => {
     participantsRepository.findOne.mockResolvedValue(null);
 
     await expect(service.findOneForUser(10, 1)).rejects.toThrow('Conversation 10 not found');
+  });
+
+  it('updates the title when the current user created the group', async () => {
+    const conversation = {
+      id: 10,
+      title: 'Gammel titel',
+      isGroup: true,
+      createdById: 1,
+    } as Conversation;
+
+    conversationsRepository.findOne.mockResolvedValue(conversation);
+    conversationsRepository.save.mockResolvedValue({
+      ...conversation,
+      title: 'Ny titel',
+    });
+
+    const result = await service.updateTitle(10, 1, { title: 'Ny titel' });
+
+    expect(conversationsRepository.findOne).toHaveBeenCalledWith({
+      where: {
+        id: 10,
+        createdById: 1,
+        isGroup: true,
+      },
+    });
+
+    expect(conversationsRepository.save).toHaveBeenCalledWith({
+      ...conversation,
+      title: 'Ny titel',
+    });
+
+    expect(result.title).toBe('Ny titel');
+  });
+
+  it('rejects updating a conversation the user did not create', async () => {
+    conversationsRepository.findOne.mockResolvedValue(null);
+
+    await expect(service.updateTitle(10, 2, { title: 'Ny titel' })).rejects.toThrow(
+      'Conversation 10 not found',
+    );
+
+    expect(conversationsRepository.save).not.toHaveBeenCalled();
+  });
+
+  it('deletes a conversation created by the current user', async () => {
+    conversationsRepository.delete.mockResolvedValue({
+      affected: 1,
+      raw: [],
+    });
+
+    await expect(service.remove(10, 1)).resolves.toBeUndefined();
+
+    expect(conversationsRepository.delete).toHaveBeenCalledWith({
+      id: 10,
+      createdById: 1,
+    });
+  });
+
+  it('rejects deleting a conversation the user did not create', async () => {
+    conversationsRepository.delete.mockResolvedValue({
+      affected: 0,
+      raw: [],
+    });
+
+    await expect(service.remove(10, 2)).rejects.toThrow('Conversation 10 not found');
+
+    expect(conversationsRepository.delete).toHaveBeenCalledWith({
+      id: 10,
+      createdById: 2,
+    });
   });
 });

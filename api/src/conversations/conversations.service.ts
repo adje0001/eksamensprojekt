@@ -4,6 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 import { Conversation } from './entities/conversation.entity.js';
 import { ConversationParticipant } from './entities/conversation-participant.entity.js';
 import { CreateConversationDto } from './dto/create-conversation.dto.js';
+import { UpdateConversationDto } from './dto/update-conversation.dto.js';
 
 @Injectable()
 export class ConversationsService {
@@ -94,5 +95,38 @@ export class ConversationsService {
     }
 
     return membership.conversation;
+  }
+
+  async updateTitle(
+    conversationId: number,
+    currentUserId: number,
+    dto: UpdateConversationDto,
+  ): Promise<Conversation> {
+    const conversation = await this.conversationsRepository.findOne({
+      where: {
+        id: conversationId,
+        createdById: currentUserId,
+        isGroup: true,
+      },
+    });
+
+    if (!conversation) {
+      throw new NotFoundException(`Conversation ${conversationId} not found`);
+    }
+
+    conversation.title = dto.title;
+
+    return this.conversationsRepository.save(conversation);
+  }
+
+  async remove(conversationId: number, currentUserId: number): Promise<void> {
+    const result = await this.conversationsRepository.delete({
+      id: conversationId,
+      createdById: currentUserId,
+    });
+
+    if (!result.affected) {
+      throw new NotFoundException(`Conversation ${conversationId} not found`);
+    }
   }
 }
