@@ -18,7 +18,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js --selectProjects unit",
-    "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --selectProjects integration",
+    "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --selectProjects integration --runInBand",
     "migration:generate": "tsx ./node_modules/typeorm/cli.js -d src/db/admin-data-source.ts migration:generate",
     "migration:create": "tsx ./node_modules/typeorm/cli.js migration:create",
     "migration:run": "tsx ./node_modules/typeorm/cli.js -d src/db/admin-data-source.ts migration:run",

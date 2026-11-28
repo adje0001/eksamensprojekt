@@ -94,6 +94,12 @@ describe('JWT auth (integration)', () => {
       ['get', '/users/me'],
       ['patch', '/users/me'],
       ['delete', '/users/me'],
+
+      ['post', '/conversations'],
+      ['get', '/conversations'],
+      ['get', '/conversations/1'],
+      ['patch', '/conversations/1'],
+      ['delete', '/conversations/1'],
     ] as const;
 
     it.each(routes)('%s %s without a token returns 401', async (method, path) => {

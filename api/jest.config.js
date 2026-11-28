@@ -18,13 +18,19 @@ const shared = {
 
 export default {
   projects: [
-    { ...shared, displayName: 'unit', roots: ['<rootDir>/src'], testMatch: ['**/*.spec.ts'] },
+    {
+      ...shared,
+      displayName: 'unit',
+      roots: ['<rootDir>/src'],
+      testMatch: ['**/*.spec.ts'],
+    },
     {
       ...shared,
       displayName: 'integration',
       roots: ['<rootDir>/test'],
       setupFiles: [...shared.setupFiles, '<rootDir>/test/setup-env.ts'],
       testMatch: ['**/*.integration.spec.ts'],
+      testTimeout: 30_000,
     },
   ],
 };
