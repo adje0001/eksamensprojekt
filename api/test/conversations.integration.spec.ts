@@ -57,7 +57,17 @@ describe('Conversations endpoints (integration)', () => {
   });
 
   afterAll(async () => {
-    await db.query('DELETE FROM conversations WHERE title LIKE $1', [`${TITLE_PREFIX}%`]);
+    await db.query(
+      `
+    DELETE FROM conversations
+    WHERE created_by IN (
+      SELECT id
+      FROM users
+      WHERE email LIKE $1
+    )
+  `,
+      [`${EMAIL_PREFIX}%`],
+    );
 
     await db.query('DELETE FROM users WHERE email LIKE $1', [`${EMAIL_PREFIX}%`]);
 
@@ -172,11 +182,11 @@ describe('Conversations endpoints (integration)', () => {
       .patch(`/conversations/${created.body.id}`)
       .set('Authorization', `Bearer ${creator.token}`)
       .send({
-        title: '  Updated title  ',
+        title: `  ${TITLE_PREFIX} updated  `,
       });
 
     expect(creatorUpdate.status).toBe(200);
-    expect(creatorUpdate.body.title).toBe('Updated title');
+    expect(creatorUpdate.body.title).toBe(`${TITLE_PREFIX} updated`);
   });
 
   it('allows only the creator to delete the conversation', async () => {
@@ -263,6 +273,14 @@ describe('Conversations endpoints (integration)', () => {
         createdById: 123,
       },
     ],
+    [
+      'a whitespace-only group title',
+      {
+        title: '   ',
+        isGroup: true,
+        participantIds: [999_991, 999_992],
+      },
+    ],
   ])('rejects %s', async (_description, body) => {
     const creator = await createUser('Creator');
 
@@ -318,5 +336,40 @@ describe('Conversations endpoints (integration)', () => {
     );
 
     expect(conversations).toEqual([]);
+  });
+
+  it('creates a direct conversation with one other participant', async () => {
+    const creator = await createUser('Creator');
+    const participant = await createUser('Participant');
+
+    const response = await http()
+      .post('/conversations')
+      .set('Authorization', `Bearer ${creator.token}`)
+      .send({
+        isGroup: false,
+        participantIds: [participant.id],
+      });
+
+    expect(response.status).toBe(201);
+
+    expect(response.body).toMatchObject({
+      title: null,
+      isGroup: false,
+      createdById: creator.id,
+    });
+
+    const participants = await db.query(
+      `
+      SELECT user_id
+      FROM conversation_participants
+      WHERE conversation_id = $1
+      ORDER BY user_id
+    `,
+      [response.body.id],
+    );
+
+    expect(participants.map((row: { user_id: number }) => row.user_id)).toEqual(
+      [creator.id, participant.id].sort((a, b) => a - b),
+    );
   });
 });

@@ -1,3 +1,7 @@
+// Data source used only by the TypeORM CLI for migrations
+// and by the seed script. It connects as chat_admin,
+// which owns the schema. The running API never uses it.
+
 import path from 'path';
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
